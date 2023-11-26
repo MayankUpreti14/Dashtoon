@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comic Generator</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #comicForm {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: calc(100% - 12px);
+            padding: 6px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #comicDisplay {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .panel {
+            width: 20%; /* Each image takes up 1/20th of the page width */
+            margin: 10px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Comic Generator</h1>
+    <form id="comicForm">
+        <label for="panel1">Panel 1:</label>
+        <input type="text" id="panel1" required>
+
+        <button type="button" onclick="generateComic()">Generate Comic</button>
+    </form>
+
+    <div id="comicDisplay"></div>
+
+    <script>
+        const axios = require('axios');
+
+        const options = {
+        method: 'GET',
+        url: 'https://img4me.p.rapidapi.com/',
+        params: {
+            text: 'Test Me',
+            font: 'trebuchet',
+            size: '12',
+            fcolor: '000000',
+            bcolor: 'FFFFFF',
+            type: 'png'
+        },
+        headers: {
+            'X-RapidAPI-Key': 'bda26a4316msh94d5a750d59ec75p1032dbjsn61f066bfe35a',
+            'X-RapidAPI-Host': 'img4me.p.rapidapi.com'
+        }
+        };
+
+        try {
+            const response = await axios.request(options);
+            console.log(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+        const apiKey = 'bda26a4316msh94d5a750d59ec75p1032dbjsn61f066bfe3';
+        const apiUrl = 'img4me.p.rapidapi.com';
+
+        async function generateComic() {
+            try {
+                const panels = [];
+
+                // Get text inputs for each panel
+                for (let i = 1; i <= 10; i++) {
+                    const input = document.getElementById(`panel${i}`).value;
+                    panels.push({ text: input });
+                }
+
+                // Call the text-to-image API
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({ panels })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate comic');
+                }
+
+                const result = await response.json();
+
+                // Display the generated comic immediately
+                const comicDisplay = document.getElementById('comicDisplay');
+                comicDisplay.innerHTML = '';
+
+                result.forEach((panel, index) => {
+                    const panelDiv = document.createElement('div');
+                    panelDiv.classList.add('panel');
+
+                    const img = document.createElement('img');
+                    img.src = panel.imageUrl;
+                    img.alt = `Panel ${index + 1}`;
+
+                    panelDiv.appendChild(img);
+                    comicDisplay.appendChild(panelDiv);
+                });
+            } catch (error) {
+                console.error(error.message);
+                alert('Failed to generate comic. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>
+
+
